@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ASM2_SIMS.Models;
+namespace SIMS.Models;
 
 public partial class Role
 {

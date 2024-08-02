@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ASM2_SIMS.Models;
+using SIMS.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +13,7 @@ using System.Security.Claims;
 using Azure.Identity;
 using NuGet.DependencyResolver;
 
-namespace ASM2_SIMS.Controllers
+namespace SIMS.Controllers
 {
     public class StudentsController : Controller
     {

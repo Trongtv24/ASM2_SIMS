@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace ASM2_SIMS.Models;
+namespace SIMS.Models;
 
 public partial class Student
 {

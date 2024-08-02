@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ASM2_SIMS.Models;
+using SIMS.Models;
 
-namespace ASM2_SIMS.Controllers
+namespace SIMS.Controllers
 {
     public class CoursesController : Controller
     {
@@ -55,12 +55,11 @@ namespace ASM2_SIMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CourseId,CourseName,Description")] Course course)
         {
-            if (ModelState.IsValid)
-            {
+
                 _context.Add(course);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
+
             return View(course);
         }
 

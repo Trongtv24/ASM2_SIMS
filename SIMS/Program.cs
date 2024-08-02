@@ -1,4 +1,4 @@
-using ASM2_SIMS.Models;
+using SIMS.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,10 +11,10 @@ namespace SIMS
 			var builder = WebApplication.CreateBuilder(args);
 
 			// Add services to the container.
-			builder.Services.AddControllersWithViews();
 			builder.Services.AddDbContext<SimsContext>(option => {
 				option.UseSqlServer(builder.Configuration.GetConnectionString("SIMSContext"));
 			});
+			builder.Services.AddControllersWithViews();
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) /// copy
 			.AddCookie(options =>
 			{
