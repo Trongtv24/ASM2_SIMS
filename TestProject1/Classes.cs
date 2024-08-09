@@ -3,42 +3,29 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SIMS.Controllers;
 using SIMS.Models;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Data;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Moq;
-using System.Net.Http;
-using NuGet.DependencyResolver;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.Extensions.DependencyInjection;
-
-
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SIMS.Tests
 {
-	public class CoursesControllerTests
+	public class ClassesControllerTests
 	{
 		private readonly SimsContext _context;
-		private readonly CoursesController _controller;
+		private readonly ClassesController _controller;
 
-		public CoursesControllerTests()
+		public ClassesControllerTests()
 		{
 			// Configure the in-memory database
 			var options = new DbContextOptionsBuilder<SimsContext>()
-						.UseInMemoryDatabase(databaseName: "TestDatabase") // Ensure a unique name
+						.UseInMemoryDatabase(databaseName: "TestDatabaseclass")
 						.Options;
 
 			// Initialize the database context
 			_context = new SimsContext(options);
 
 			// Initialize the controller with the context
-			_controller = new CoursesController(_context);
+			_controller = new ClassesController(_context);
 
 			// Seed the database with initial data if needed
 			SeedDatabase();
@@ -46,7 +33,8 @@ namespace SIMS.Tests
 
 		private void SeedDatabase()
 		{
-			// Clear existing data to avoid duplicate key issues
+			// Remove existing data from both Classes and Courses tables
+			_context.Classes.RemoveRange(_context.Classes);
 			_context.Courses.RemoveRange(_context.Courses);
 			_context.SaveChanges();
 
@@ -55,19 +43,27 @@ namespace SIMS.Tests
 				new Course { CourseId = 1, CourseName = "Mathematics", Description = "Math course" },
 				new Course { CourseId = 2, CourseName = "Science", Description = "Science course" }
 			);
+
+			// Add classes with unique ClassId
+			_context.Classes.AddRange(
+				new Class { ClassId = 1, ClassName = "Math Class A", CourseId = 1 },
+				new Class { ClassId = 2, ClassName = "Science Class A", CourseId = 2 }
+			);
+
 			_context.SaveChanges();
 		}
 
 
+
 		[Fact]
-		public async Task Index_ReturnsAViewResult_WithAListOfCourses()
+		public async Task Index_ReturnsAViewResult_WithAListOfClasses()
 		{
 			// Act
 			var result = await _controller.Index();
 
 			// Assert
 			var viewResult = Assert.IsType<ViewResult>(result);
-			var model = Assert.IsAssignableFrom<IEnumerable<Course>>(viewResult.Model);
+			var model = Assert.IsAssignableFrom<IEnumerable<Class>>(viewResult.Model);
 			Assert.Equal(2, model.Count());
 		}
 
@@ -75,26 +71,26 @@ namespace SIMS.Tests
 		public async Task Create_PostValidModel_RedirectsToIndex()
 		{
 			// Arrange
-			var course = new Course { CourseId = 3, CourseName = "English", Description = "English course" };
+			var @class = new Class { ClassId = 3, ClassName = "English Class", CourseId = 1 };
 
 			// Act
-			var result = await _controller.Create(course);
+			var result = await _controller.Create(@class);
 
 			// Assert
 			var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
 			Assert.Equal("Index", redirectToActionResult.ActionName);
-			Assert.True(_context.Courses.Any(c => c.CourseName == "English"));
+			Assert.True(_context.Classes.Any(c => c.ClassName == "English Class"));
 		}
 
 		[Fact]
 		public async Task Edit_PostInvalidId_ReturnsNotFound()
 		{
 			// Arrange
-			var invalidCourseId = 99;
-			var courseToUpdate = new Course { CourseId = 99, CourseName = "Test", Description = "Test Desc" };
+			var invalidClassId = 99;
+			var classToUpdate = new Class { ClassId = 99, ClassName = "Test Class", CourseId = 1 };
 
 			// Act
-			var result = await _controller.Edit(invalidCourseId, courseToUpdate);
+			var result = await _controller.Edit(invalidClassId, classToUpdate);
 
 			// Assert
 			Assert.IsType<NotFoundResult>(result);
@@ -104,15 +100,27 @@ namespace SIMS.Tests
 		public async Task Delete_Confirmed_ReturnsRedirectToIndex()
 		{
 			// Arrange
-			var courseIdToDelete = 1;
+			var classIdToDelete = 1;
 
 			// Act
-			var result = await _controller.DeleteConfirmed(courseIdToDelete);
+			var result = await _controller.DeleteConfirmed(classIdToDelete);
 
 			// Assert
 			var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
 			Assert.Equal("Index", redirectToActionResult.ActionName);
-			Assert.False(_context.Courses.Any(c => c.CourseId == courseIdToDelete));
+			Assert.False(_context.Classes.Any(c => c.ClassId == classIdToDelete));
+		}
+
+		[Fact]
+		public async Task ViewClass_ReturnsAViewResult_WithAListOfClasses()
+		{
+			// Act
+			var result = await _controller.ViewClass();
+
+			// Assert
+			var viewResult = Assert.IsType<ViewResult>(result);
+			var model = Assert.IsAssignableFrom<IEnumerable<Class>>(viewResult.Model);
+			Assert.Equal(2, model.Count());
 		}
 
 		// Cleanup
@@ -120,7 +128,7 @@ namespace SIMS.Tests
 		{
 			_context.Dispose();
 		}
+
+
 	}
-
-
 }
